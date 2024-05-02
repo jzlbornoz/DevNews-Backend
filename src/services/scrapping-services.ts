@@ -3,6 +3,11 @@ interface Product {
     title: string;
     price: string;
 }
+interface Article {
+    title: string;
+    review: string;
+    link: string;
+}
 class ScrappingServices {
 
     /**
@@ -10,7 +15,7 @@ class ScrappingServices {
      *
      * @return {Promise<Product[]>} An array of Product objects.
      */
-    async runScrapping(): Promise<Product[]> {
+    async getAmazonScrapping(): Promise<Product[]> {
         // Launches a headless chromium browser
         const browser = await chromium.launch({ headless: true });
 
@@ -25,7 +30,9 @@ class ScrappingServices {
         // Selects all elements with the class '.puisg-col-inner'
         // and maps each element to a Product object
         const productItems = await page.$$eval('.puisg-col-inner', (items) => {
+
             return items.map((item) => {
+
                 // Retrieves the title of the product
                 const title = item.querySelector('h2')?.innerText;
 
@@ -46,7 +53,31 @@ class ScrappingServices {
         return productItems.filter((item) => item !== null) as Product[];
     }
 
+    /**
+     * Asynchronously scrapes news articles from the developer tech website.
+     *
+     * @return {Promise<Article[]>} An array of Article objects.
+     */
+    async getNewsArticlesScrapping(): Promise<Article[]> {
+        const browser = await chromium.launch({ headless: true });
+        const page = await browser.newPage();
 
+        await page.goto('https://www.developer-tech.com/news/');
+
+        const articles = await page.$$eval('section.entry-content', (sections) => {
+            return sections.map((section) => {
+                const title = section.querySelector('h3')?.innerText;
+                const reviewSection = section.querySelector('div.post-text');
+                const review = `${reviewSection?.querySelectorAll('p')[1]?.innerText || ''} ${reviewSection?.querySelectorAll('p')[2]?.innerText || ''}`;
+                const link = section.querySelector('a')?.getAttribute('href');
+
+                return { title, review, link };
+            });
+        });
+
+        browser.close();
+
+        return articles.filter((article) => article.title && article.review && article.link) as Article[];
+    }
 }
-
 export { ScrappingServices };
