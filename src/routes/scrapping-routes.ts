@@ -8,7 +8,7 @@ const services = new ScrappingServices();
 // -- Get
 router.get('/',
     async (req: Request, res: Response) => {
-        const products = await services.getNewsArticlesScrapping();
+        const products = await services.getJerseyList();
         res.status(200).json(products);
     })
 
