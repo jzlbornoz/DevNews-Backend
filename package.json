@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "preinstall": "npx playwright install",
+    "check-playwright": "ls -la /opt/render/.cache/ms-playwright",
     "dev": "ts-node-dev src/index.ts",
     "build": "npx tsc",
     "start": "node dist/src/index.js",
